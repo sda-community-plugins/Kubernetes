@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pluginInfo>
+    <author>
+        <name>Serena Software</name>
+        <email></email>
+        <website></website>
+    </author>
+    <licenses>
+        <license></license>
+    </licenses>
+    <integrationType>Deploy</integrationType>
+    <categories>
+        <category>Cloud/Kubernetes</category>
+    </categories>
+    <versions>
+        <version name="1">
+            <releaseNote>
+                Installing this plugin will give you access to tasks available through Kubernetes's Command Line
+                Interface. The steps can be used to design a component process for Kubernetes.
+            </releaseNote>
+        </version>
+    </versions>
+</pluginInfo>

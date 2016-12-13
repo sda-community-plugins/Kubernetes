@@ -1,0 +1,793 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<plugin xmlns="http://www.urbancode.com/PluginXMLSchema_v1">
+    <header>
+        <identifier id="com.serena.air.plugin.Kubernetes" name="Kubernetes" version="1"/>
+        <description>
+            Provides tasks to interact with Kubernetes command line.
+        </description>
+        <tag>Cloud/Kubernetes</tag>
+    </header>
+
+    <step-type name="Create Resources">
+        <description>Create a resource by file name.</description>
+        <properties>
+            <property name="url">
+                <property-ui type="textBox"
+                             label="URL"
+                             description="The URL of the Kubernetes server. For example: https://10.2.2.2:8443."/>
+            </property>
+            <property name="username">
+                <property-ui type="textBox"
+                             label="User Name"
+                             description="The user name to access the Kubernetes server."/>
+            </property>
+            <property name="password">
+                <property-ui type="secureBox"
+                             label="Password"
+                             description="The password to access the Kubernetes server."/>
+            </property>
+            <property name="namespace">
+                <property-ui type="textBox"
+                             label="Namespace"
+                             description="The namespace on the Kubernetes server to execute the command in."/>
+            </property>
+            <property name="filename" required="true">
+                <property-ui type="textBox"
+                             label="File Name"
+                             description="File name, directory, or URL of a file to use to create the resources. Only JSON and YAML
+                                  formats are accepted."/>
+            </property>
+            <property name="saveConfig">
+                <property-ui type="checkBox" label="Save Config"
+                             description="Check this option to save the configuration of the object to be updated later."/>
+            </property>
+            <property name="record">
+                <property-ui type="checkBox" label="Record Command"
+                             description="Record kubectl command in the resource annotation"/>
+            </property>
+            <property name="flags">
+                <property-ui type="textAreaBox"
+                             label="Flags"
+                             description="A newline-seperated list of flags to set when running the creation process. For example:
+                                  --recursive=true"/>
+            </property>
+            <property name="path">
+                <property-ui type="textBox" hidden="true"
+                             label="kubectl Path"
+                             description="The name of the kubectl command if it is in the system path, or the full path to run the
+                                  kubectl command."/>
+            </property>
+            <property name="globals">
+                <property-ui type="textAreaBox" hidden="true"
+                             label="Global Flags"
+                             description="A newline-separated list of Global flags to set when running the kubectl command. For example:
+                                  --insecure-skip-tls-verify\n--match-server-version\n--log-dir=&quot;/var/logs/&quot;"/>
+            </property>
+        </properties>
+        <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put("Status", "Failure");
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+
+        <command program="${GROOVY_HOME}/bin/groovy">
+            <arg value="-cp"/>
+            <arg path="classes:lib/Kubernetes.jar"/>
+            <arg value="-Djnp.disableDiscovery=true"/>
+            <arg file="Create.groovy"/>
+            <arg file="${PLUGIN_INPUT_PROPS}"/>
+            <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+        </command>
+    </step-type>
+
+    <step-type name="Delete Resources">
+        <description>Delete resources by file names, resource types and names, or resource types and labels.
+        </description>
+        <properties>
+            <property name="url">
+                <property-ui type="textBox"
+                             label="URL"
+                             description="The URL of the Kubernetes server. For example: https://10.2.2.2:8443."/>
+            </property>
+            <property name="username">
+                <property-ui type="textBox"
+                             label="User Name"
+                             description="The user name to access the Kubernetes server."/>
+            </property>
+            <property name="password">
+                <property-ui type="secureBox"
+                             label="Password"
+                             description="The password to access the Kubernetes server."/>
+            </property>
+            <property name="namespace">
+                <property-ui type="textBox"
+                             label="Namespace"
+                             description="The namespace on the Kubernetes server to execute the command in."/>
+            </property>
+            <property name="type" required="true">
+                <property-ui type="selectBox"
+                             label="Deletion Type"
+                             description="Specify the way to select resources to delete."/>
+                <value label="Resource Types and Names">names</value>
+                <value label="Resource Types and Labels">labels</value>
+                <value label="File">filename</value>
+                <value label="All Resources of Type">all</value>
+            </property>
+            <property name="resources" required="true">
+                <property-ui type="textBox"
+                             label="Resources"
+                             description="A list of resources to delete. The format is based on the selected Deletion Type. For Resource
+                                  Types and Names, enter a comma-separated list of resource types followed by a space separated
+                                  list of resource names. For example: pod,service baz foo. For Resource Types and Labels, enter
+                                  a comma-separated list of resource types followed by a name=value pair for the label and its
+                                  value. For example: pods,services color=blue. For All Resources of Type, specify a
+                                  comma-separated list of resource types to delete all resources with those types. For example:
+                                  pods,services. For File, specify a file name, directory, or URL of a file that contains the
+                                  resources to delete."/>
+            </property>
+            <property name="flags">
+                <property-ui type="textAreaBox"
+                             label="Flags"
+                             description="A newline-seperated list of flags to set when running the creation process. For example:
+                                  --output=json"/>
+            </property>
+            <property name="path">
+                <property-ui type="textBox" hidden="true"
+                             label="kubectl Path"
+                             description="The name of the kubectl command if it is in the system path, or the full path to run the
+                                  kubectl command."/>
+            </property>
+            <property name="globals">
+                <property-ui type="textAreaBox" hidden="true"
+                             label="Global Flags"
+                             description="A newline-separated list of Global flags to set when running the kubectl command. For example:
+                                  --insecure-skip-tls-verify\n--match-server-version\n--log-dir=&quot;/var/logs/&quot;"/>
+            </property>
+        </properties>
+        <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put("Status", "Failure");
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+
+        <command program="${GROOVY_HOME}/bin/groovy">
+            <arg value="-cp"/>
+            <arg path="classes:lib/Kubernetes.jar"/>
+            <arg value="-Djnp.disableDiscovery=true"/>
+            <arg file="Delete.groovy"/>
+            <arg file="${PLUGIN_INPUT_PROPS}"/>
+            <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+        </command>
+    </step-type>
+
+    <step-type name="Run Image">
+        <description>Create and run a specific image.</description>
+        <properties>
+            <property name="url">
+                <property-ui type="textBox"
+                             label="URL"
+                             description="The URL of the Kubernetes server. For example: https://10.2.2.2:8443."/>
+            </property>
+            <property name="username">
+                <property-ui type="textBox"
+                             label="User Name"
+                             description="The user name to access the Kubernetes server."/>
+            </property>
+            <property name="password">
+                <property-ui type="secureBox"
+                             label="Password"
+                             description="The password to access the Kubernetes server."/>
+            </property>
+            <property name="namespace">
+                <property-ui type="textBox"
+                             label="Namespace"
+                             description="The namespace on the Kubernetes server to execute the command in."/>
+            </property>
+            <property name="name" required="true">
+                <property-ui type="textBox"
+                             label="Name"
+                             description="Name to call the running image."/>
+            </property>
+            <property name="image" required="true">
+                <property-ui type="textBox"
+                             label="Image Name"
+                             description="Name of the image (e.g. from Docker registry)."/>
+            </property>
+            <property name="flags">
+                <property-ui type="textAreaBox"
+                             label="Flags"
+                             description="A newline-seperated list of flags to set when running the creation process. For example:
+                                  --replicas=3"/>
+            </property>
+            <property name="envPropValues">
+                <property-ui description="Comma separated list of environment variables to pass to image"
+                             label="Environment Variables " type="textBox"/>
+            </property>
+            <property name="path">
+                <property-ui type="textBox" hidden="true"
+                             label="kubectl Path"
+                             description="The name of the kubectl command if it is in the system path, or the full path to run the
+                                  kubectl command."/>
+            </property>
+            <property name="globals">
+                <property-ui type="textAreaBox" hidden="true"
+                             label="Global Flags"
+                             description="A newline-separated list of Global flags to set when running the kubectl command. For example:
+                                  --insecure-skip-tls-verify\n--match-server-version\n--log-dir=&quot;/var/logs/&quot;"/>
+            </property>
+        </properties>
+        <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put("Status", "Failure");
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+
+        <command program="${GROOVY_HOME}/bin/groovy">
+            <arg value="-cp"/>
+            <arg path="classes:lib/Kubernetes.jar"/>
+            <arg value="-Djnp.disableDiscovery=true"/>
+            <arg file="Run.groovy"/>
+            <arg file="${PLUGIN_INPUT_PROPS}"/>
+            <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+        </command>
+    </step-type>
+
+    <step-type name="Expose Resources">
+        <description>Expose a deployment, replication controller, service, or pod as a new Kubernetes service.
+        </description>
+        <properties>
+            <property name="url">
+                <property-ui type="textBox"
+                             label="URL"
+                             description="The URL of the Kubernetes server. For example: https://10.2.2.2:8443."/>
+            </property>
+            <property name="username">
+                <property-ui type="textBox"
+                             label="User Name"
+                             description="The user name to access the Kubernetes server."/>
+            </property>
+            <property name="password">
+                <property-ui type="secureBox"
+                             label="Password"
+                             description="The password to access the Kubernetes server."/>
+            </property>
+            <property name="namespace">
+                <property-ui type="textBox"
+                             label="Namespace"
+                             description="The namespace on the Kubernetes server to execute the command in."/>
+            </property>
+            <property name="type" required="true">
+                <property-ui type="selectBox"
+                             label="Resource Type"
+                             description="Specify the way to select resources to expose."/>
+                <value label="Deployment">deployment</value>
+                <value label="Replication Controller">rc</value>
+                <value label="Service">service</value>
+                <value label="Pod">pod</value>
+                <value label="File">filename</value>
+            </property>
+            <property name="resource" required="true">
+                <property-ui type="textBox"
+                             label="Resource"
+                             description="The name of the resource to expose. For a Resource Type of File, specify a file name,
+                                  directory, or URL of a file that identifies the resource to expose."/>
+            </property>
+            <property name="flags">
+                <property-ui type="textAreaBox"
+                             label="Flags"
+                             description="A newline-seperated list of flags to set when exposing the resource. For example:
+                                  --port=80"/>
+            </property>
+            <property name="path">
+                <property-ui type="textBox" hidden="true"
+                             label="kubectl Path"
+                             description="The name of the kubectl command if it is in the system path, or the full path to run the
+                                  kubectl command."/>
+            </property>
+            <property name="globals">
+                <property-ui type="textAreaBox" hidden="true"
+                             label="Global Flags"
+                             description="A newline-separated list of Global flags to set when running the kubectl command. For example:
+                                  --insecure-skip-tls-verify\n--match-server-version\n--log-dir=&quot;/var/logs/&quot;"/>
+            </property>
+        </properties>
+        <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put("Status", "Failure");
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+
+        <command program="${GROOVY_HOME}/bin/groovy">
+            <arg value="-cp"/>
+            <arg path="classes:lib/Kubernetes.jar"/>
+            <arg value="-Djnp.disableDiscovery=true"/>
+            <arg file="Expose.groovy"/>
+            <arg file="${PLUGIN_INPUT_PROPS}"/>
+            <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+        </command>
+    </step-type>
+
+    <step-type name="Scale Resources">
+        <description>Set a new size for a Deployment, ReplicaSet, Replication Controller, or Job.</description>
+        <properties>
+            <property name="url">
+                <property-ui type="textBox"
+                             label="URL"
+                             description="The URL of the Kubernetes server. For example: https://10.2.2.2:8443."/>
+            </property>
+            <property name="username">
+                <property-ui type="textBox"
+                             label="User Name"
+                             description="The user name to access the Kubernetes server."/>
+            </property>
+            <property name="password">
+                <property-ui type="secureBox"
+                             label="Password"
+                             description="The password to access the Kubernetes server."/>
+            </property>
+            <property name="namespace">
+                <property-ui type="textBox"
+                             label="Namespace"
+                             description="The namespace on the Kubernetes server to execute the command in."/>
+            </property>
+            <property name="type" required="true">
+                <property-ui type="selectBox"
+                             label="Resource Type"
+                             description="Specify the way to select resources to scale."/>
+                <value label="Deployment">deployment</value>
+                <value label="Replication Controller">rc</value>
+                <value label="Service">service</value>
+                <value label="Pod">pod</value>
+                <value label="File">filename</value>
+            </property>
+            <property name="resource" required="true">
+                <property-ui type="textBox"
+                             label="Resource"
+                             description="The name of the resource to scale. For a Resource Type of File, specify a file name,
+                                  directory, or URL of a file that identifies the resource to scale."/>
+            </property>
+            <property name="flags">
+                <property-ui type="textAreaBox"
+                             label="Flags"
+                             description="A newline-seperated list of flags to set when running the scale process. For example:
+                                  --replicas=3"/>
+            </property>
+            <property name="path">
+                <property-ui type="textBox" hidden="true"
+                             label="kubectl Path"
+                             description="The name of the kubectl command if it is in the system path, or the full path to run the
+                                  kubectl command."/>
+            </property>
+            <property name="globals">
+                <property-ui type="textAreaBox" hidden="true"
+                             label="Global Flags"
+                             description="A newline-separated list of Global flags to set when running the kubectl command. For example:
+                                  --insecure-skip-tls-verify\n--match-server-version\n--log-dir=&quot;/var/logs/&quot;"/>
+            </property>
+        </properties>
+        <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put("Status", "Failure");
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+
+        <command program="${GROOVY_HOME}/bin/groovy">
+            <arg value="-cp"/>
+            <arg path="classes:lib/Kubernetes.jar"/>
+            <arg value="-Djnp.disableDiscovery=true"/>
+            <arg file="Scale.groovy"/>
+            <arg file="${PLUGIN_INPUT_PROPS}"/>
+            <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+        </command>
+    </step-type>
+
+    <step-type name="Apply Configuration">
+        <description>Apply a configuration to a resource by filename.</description>
+        <properties>
+            <property name="url">
+                <property-ui type="textBox"
+                             label="URL"
+                             description="The URL of the Kubernetes server. For example: https://10.2.2.2:8443."/>
+            </property>
+            <property name="username">
+                <property-ui type="textBox"
+                             label="User Name"
+                             description="The user name to access the Kubernetes server."/>
+            </property>
+            <property name="password">
+                <property-ui type="secureBox"
+                             label="Password"
+                             description="The password to access the Kubernetes server."/>
+            </property>
+            <property name="namespace">
+                <property-ui type="textBox"
+                             label="Namespace"
+                             description="The namespace on the Kubernetes server to execute the command in."/>
+            </property>
+            <property name="filename" required="true">
+                <property-ui type="textBox"
+                             label="File Name"
+                             description="File name, directory, or URL of a file to use for the configuration. Only JSON and YAML
+                                  formats are accepted."/>
+            </property>
+            <property name="flags">
+                <property-ui type="textAreaBox"
+                             label="Flags"
+                             description="A newline-seperated list of flags to set when applying the configuraiton. For example:
+                                  --output=json"/>
+            </property>
+            <property name="path">
+                <property-ui type="textBox" hidden="true"
+                             label="kubectl Path"
+                             description="The name of the kubectl command if it is in the system path, or the full path to run the
+                                  kubectl command."/>
+            </property>
+            <property name="globals">
+                <property-ui type="textAreaBox" hidden="true"
+                             label="Global Flags"
+                             description="A newline-separated list of Global flags to set when running the kubectl command. For example:
+                                  --insecure-skip-tls-verify\n--match-server-version\n--log-dir=&quot;/var/logs/&quot;"/>
+            </property>
+        </properties>
+        <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put("Status", "Failure");
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+
+        <command program="${GROOVY_HOME}/bin/groovy">
+            <arg value="-cp"/>
+            <arg path="classes:lib/Kubernetes.jar"/>
+            <arg value="-Djnp.disableDiscovery=true"/>
+            <arg file="Create.groovy"/>
+            <arg file="${PLUGIN_INPUT_PROPS}"/>
+            <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+        </command>
+    </step-type>
+
+    <step-type name="Update Label">
+        <description>Update the labels on a resource.</description>
+        <properties>
+            <property name="url">
+                <property-ui type="textBox"
+                             label="URL"
+                             description="The URL of the Kubernetes server. For example: https://10.2.2.2:8443."/>
+            </property>
+            <property name="username">
+                <property-ui type="textBox"
+                             label="User Name"
+                             description="The user name to access the Kubernetes server."/>
+            </property>
+            <property name="password">
+                <property-ui type="secureBox"
+                             label="Password"
+                             description="The password to access the Kubernetes server."/>
+            </property>
+            <property name="namespace">
+                <property-ui type="textBox"
+                             label="Namespace"
+                             description="The namespace on the Kubernetes server to execute the command in."/>
+            </property>
+            <property name="path">
+                <property-ui type="textBox" hidden="true"
+                             label="kubectl Path"
+                             description="The name of the kubectl command if it is in the system path, or the full path to run the
+                                  kubectl command."/>
+            </property>
+            <property name="globals">
+                <property-ui type="textAreaBox" hidden="true"
+                             label="Global Flags"
+                             description="A newline-separated list of Global flags to set when running the kubectl command. For example:
+                                  --insecure-skip-tls-verify\n--match-server-version\n--log-dir=&quot;/var/logs/&quot;"/>
+            </property>
+            <property name="type" required="true">
+                <property-ui type="selectBox"
+                             label="Resource Type"
+                             description="Specify the way to select resources to label."/>
+                <value label="Pods">pods</value>
+                <value label="File">filename</value>
+            </property>
+            <property name="resource">
+                <property-ui type="textBox"
+                             label="Resource"
+                             description="The name of the resource to use. For a Resource Type of File, specify a file name,
+                                  directory, or URL of a file that identifies the resource to expose."/>
+            </property>
+            <property name="labels" required="true">
+                <property-ui type="textBox"
+                             label="Labels"
+                             description="The name=value pairs for the labels to update."/>
+            </property>
+            <property name="overwrite">
+                <property-ui type="checkBox" label="Overwrite"
+                             description="Check this option to force overwriting of existing labels."/>
+            </property>
+            <property name="flags">
+                <property-ui type="textAreaBox"
+                             label="Flags"
+                             description="A newline-seperated list of flags to set when running the update label process. For example:
+                                  --replicas=3 --output=json"/>
+            </property>
+        </properties>
+        <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put("Status", "Failure");
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+
+        <command program="${GROOVY_HOME}/bin/groovy">
+            <arg value="-cp"/>
+            <arg path="classes:lib/Kubernetes.jar"/>
+            <arg value="-Djnp.disableDiscovery=true"/>
+            <arg file="Label.groovy"/>
+            <arg file="${PLUGIN_INPUT_PROPS}"/>
+            <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+        </command>
+    </step-type>
+
+    <step-type name="Rollout">
+        <description>Manage a deployment using rollout subcommands.
+        </description>
+        <properties>
+            <property name="url">
+                <property-ui type="textBox"
+                             label="URL"
+                             description="The URL of the Kubernetes server. For example: https://10.2.2.2:8443."/>
+            </property>
+            <property name="username">
+                <property-ui type="textBox"
+                             label="User Name"
+                             description="The user name to access the Kubernetes server."/>
+            </property>
+            <property name="password">
+                <property-ui type="secureBox"
+                             label="Password"
+                             description="The password to access the Kubernetes server."/>
+            </property>
+            <property name="namespace">
+                <property-ui type="textBox"
+                             label="Namespace"
+                             description="The namespace on the Kubernetes server to execute the command in."/>
+            </property>
+            <property name="command" required="true">
+                <property-ui type="selectBox"
+                             label="Command"
+                             description="Specify the rollout command to execute."/>
+                <value label="Pause Resource">pause</value>
+                <value label="Resume Resource">resume</value>
+                <value label="Watch Status until its done">state</value>
+                <value label="Undo a Previous Rollout">undo</value>
+                <value label="View Rollout History">history</value>
+            </property>
+            <property name="type" required="true">
+                <property-ui type="selectBox"
+                             label="Resource Type"
+                             description="Specify the way to select resources to use."/>
+                <value label="Deployment">deployment</value>
+                <value label="Replication Controller">rc</value>
+                <value label="Service">service</value>
+                <value label="Pod">pod</value>
+                <value label="File">filename</value>
+            </property>
+            <property name="resource" required="true">
+                <property-ui type="textBox"
+                             label="Resource"
+                             description="The name of the resource to use. For a Resource Type of File, specify a file name,
+                                  directory, or URL of a file that identifies the resource to expose."/>
+            </property>
+            <property name="flags">
+                <property-ui type="textAreaBox"
+                             label="Flags"
+                             description="A newline-seperated list of flags to set when running the rollout process. For example:
+                                  --recursive=true"/>
+            </property>
+            <property name="path">
+                <property-ui type="textBox" hidden="true"
+                             label="kubectl Path"
+                             description="The name of the kubectl command if it is in the system path, or the full path to run the
+                                  kubectl command."/>
+            </property>
+            <property name="globals">
+                <property-ui type="textAreaBox" hidden="true"
+                             label="Global Flags"
+                             description="A newline-separated list of Global flags to set when running the kubectl command. For example:
+                                  --insecure-skip-tls-verify\n--match-server-version\n--log-dir=&quot;/var/logs/&quot;"/>
+            </property>
+        </properties>
+        <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put("Status", "Failure");
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+
+        <command program="${GROOVY_HOME}/bin/groovy">
+            <arg value="-cp"/>
+            <arg path="classes:lib/Kubernetes.jar"/>
+            <arg value="-Djnp.disableDiscovery=true"/>
+            <arg file="Rollout.groovy"/>
+            <arg file="${PLUGIN_INPUT_PROPS}"/>
+            <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+        </command>
+    </step-type>
+
+    <step-type name="Set Image">
+        <description>Update existing container image(s) of resources.
+        </description>
+        <properties>
+            <property name="url">
+                <property-ui type="textBox"
+                             label="URL"
+                             description="The URL of the Kubernetes server. For example: https://10.2.2.2:8443."/>
+            </property>
+            <property name="username">
+                <property-ui type="textBox"
+                             label="User Name"
+                             description="The user name to access the Kubernetes server."/>
+            </property>
+            <property name="password">
+                <property-ui type="secureBox"
+                             label="Password"
+                             description="The password to access the Kubernetes server."/>
+            </property>
+            <property name="namespace">
+                <property-ui type="textBox"
+                             label="Namespace"
+                             description="The namespace on the Kubernetes server to execute the command in.."/>
+            </property>
+            <property name="type" required="true">
+                <property-ui type="selectBox"
+                             label="Resource Type"
+                             description="Specify the way to select resources to use."/>
+                <value label="Deployment">deployment</value>
+                <value label="Replication Controller">rc</value>
+                <value label="Daemon Set">ds</value>
+                <value label="Pod">pod</value>
+                <value label="Job">job</value>
+                <value label="Replica Set">rs</value>
+                <value label="File">filename</value>
+            </property>
+            <property name="resource" required="true">
+                <property-ui type="textBox"
+                             label="Resource"
+                             description="The name of the resource to use. For a Resource Type of File, specify a file name,
+                                  directory, or URL of a file that identifies the resource to expose."/>
+            </property>
+            <property name="image" required="true">
+                <property-ui type="textBox"
+                             label="Image Versions"
+                             description="Name and version of the image(s) (e.g. nginx=nginx:1.9.1)."/>
+            </property>
+            <property name="flags">
+                <property-ui type="textAreaBox"
+                             label="Flags"
+                             description="A newline-seperated list of flags to set when running the set image process. For example:
+                                  --recursive=true"/>
+            </property>
+            <property name="path">
+                <property-ui type="textBox" hidden="true"
+                             label="kubectl Path"
+                             description="The name of the kubectl command if it is in the system path, or the full path to run the
+                                  kubectl command."/>
+            </property>
+            <property name="globals">
+                <property-ui type="textAreaBox" hidden="true"
+                             label="Global Flags"
+                             description="A newline-separated list of Global flags to set when running the kubectl command. For example:
+                                  --insecure-skip-tls-verify\n--match-server-version\n--log-dir=&quot;/var/logs/&quot;"/>
+            </property>
+        </properties>
+        <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put("Status", "Failure");
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+
+        <command program="${GROOVY_HOME}/bin/groovy">
+            <arg value="-cp"/>
+            <arg path="classes:lib/Kubernetes.jar"/>
+            <arg value="-Djnp.disableDiscovery=true"/>
+            <arg file="SetImage.groovy"/>
+            <arg file="${PLUGIN_INPUT_PROPS}"/>
+            <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+        </command>
+    </step-type>
+
+    <step-type name="Exec">
+        <description>Execute a command in a container.
+        </description>
+        <properties>
+            <property name="url">
+                <property-ui type="textBox"
+                             label="URL"
+                             description="The URL of the Kubernetes server. For example: https://10.2.2.2:8443."/>
+            </property>
+            <property name="username">
+                <property-ui type="textBox"
+                             label="User Name"
+                             description="The user name to access the Kubernetes server."/>
+            </property>
+            <property name="password">
+                <property-ui type="secureBox"
+                             label="Password"
+                             description="The password to access the Kubernetes server."/>
+            </property>
+            <property name="namespace">
+                <property-ui type="textBox"
+                             label="Namespace"
+                             description="The namespace on the Kubernetes server to execute the command in.."/>
+            </property>
+            <property name="pod" required="true">
+                <property-ui type="textBox"
+                             label="Pod name"
+                             description="Name of the pod the container is in, e.g. 123456-7890."/>
+            </property>
+            <property name="container">
+                <property-ui type="textBox"
+                             label="Container name"
+                             description="Name of the container to execute command in. If empty the first container is used by default."/>
+            </property>
+            <property name="command" required="true">
+                <property-ui type="textBox"
+                             label="Command"
+                             description="The command to execute in the container."/>
+            </property>
+            <property name="path">
+                <property-ui type="textBox" hidden="true"
+                             label="kubectl Path"
+                             description="The name of the kubectl command if it is in the system path, or the full path to run the
+                                  kubectl command."/>
+            </property>
+            <property name="globals">
+                <property-ui type="textAreaBox" hidden="true"
+                             label="Global Flags"
+                             description="A newline-separated list of Global flags to set when running the kubectl command. For example:
+                                  --insecure-skip-tls-verify\n--match-server-version\n--log-dir=&quot;/var/logs/&quot;"/>
+            </property>
+        </properties>
+        <post-processing><![CDATA[
+        if (properties.get("exitCode") != 0) {
+            properties.put("Status", "Failure");
+        }
+        else {
+            properties.put("Status", "Success");
+        }
+     ]]></post-processing>
+
+        <command program="${GROOVY_HOME}/bin/groovy">
+            <arg value="-cp"/>
+            <arg path="classes:lib/Kubernetes.jar"/>
+            <arg value="-Djnp.disableDiscovery=true"/>
+            <arg file="Exec.groovy"/>
+            <arg file="${PLUGIN_INPUT_PROPS}"/>
+            <arg file="${PLUGIN_OUTPUT_PROPS}"/>
+        </command>
+    </step-type>
+
+</plugin>
