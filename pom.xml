@@ -13,6 +13,11 @@
 	<artifactId>Kubernetes</artifactId>
 	<packaging>pom</packaging>
 	<name>Kubernetes</name>
+
+    <properties>
+        <air.plugin.build.script.relative.path>../air-plugin-build-script</air.plugin.build.script.relative.path>
+        <mininum.server.version.needed>6.1.2</mininum.server.version.needed>
+    </properties>
 	
     <build>
         <finalName>Kubernetes</finalName>
