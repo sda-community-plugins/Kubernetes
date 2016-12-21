@@ -1,8 +1,8 @@
 import com.serena.air.plugin.kubernetes.KubernetesHelper
 import com.urbancode.air.AirPluginTool
 
-def apTool = new AirPluginTool(this.args[0], this.args[1]);
-def props = apTool.getStepProperties();
+def apTool = new AirPluginTool(this.args[0], this.args[1])
+def props = apTool.getStepProperties()
 
 String url = props['url']?.trim()
 String username = props['username']?.trim()

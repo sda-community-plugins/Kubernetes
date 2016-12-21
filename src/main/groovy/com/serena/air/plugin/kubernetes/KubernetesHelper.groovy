@@ -21,6 +21,9 @@ class KubernetesHelper {
         } else {
             this.home = 'kubectl'
         }
+        if (workdir) {
+            this.workdir = workdir
+        }
         ch = new CommandHelper(workdir)
         ArrayList args = []
         args << 'version'

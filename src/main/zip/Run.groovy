@@ -27,9 +27,9 @@ args << '--image=' + image
 if (envPropValues) {
     envPropValues.split("(?<=(^|[^\\\\])(\\\\{2}){0,8}),").each { prop ->
         //split out the name
-        def parts = prop.split("(?<=(^|[^\\\\])(\\\\{2}){0,8})=", 2);
-        def propName = parts[0];
-        def propValue = parts.size() == 2 ? parts[1] : "";
+        def parts = prop.split("(?<=(^|[^\\\\])(\\\\{2}){0,8})=", 2)
+        def propName = parts[0]
+        def propValue = parts.size() == 2 ? parts[1] : ""
         //replace \, with just , and then \\ with \
         propName = propName.replace("\\=", "=").replace("\\,", ",").replace("\\\\", "\\")
         propValue = propValue.replace("\\=", "=").replace("\\,", ",").replace("\\\\", "\\")
